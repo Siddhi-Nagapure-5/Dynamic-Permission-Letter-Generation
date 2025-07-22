@@ -1,7 +1,7 @@
 # PASC Event Management Project  
 ## 📄 Dynamic Permission Letter Generator
 
-This feature—implemented by [Your Name], [Team Member 2], and [Team Member 3]—is part of the larger PASC Event Management project. It enables organizers to generate official venue permission letters matching the exact PASC letterhead format, complete with dynamic details, logo, alignment, and signature blocks.
+This feature—implemented by Siddhi Nagapure, Sarang Rao, and Jay Kotwal—is part of the larger PASC Event Management project. It enables organizers to generate official venue permission letters matching the exact PASC letterhead format, complete with dynamic details, logo, alignment, and signature blocks.
 
 ---
 
