@@ -1,2 +1,6 @@
-/.env
-/.gitignore
+
+
+# Ignore environment variables file
+.env
+# Ignore gitignore file itself
+.gitignore
