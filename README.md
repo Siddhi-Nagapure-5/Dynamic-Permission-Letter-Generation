@@ -16,10 +16,8 @@ This feature—implemented by Siddhi Nagapure, Sarang Rao, and Jay Kotwal—is p
 
 ## 🖼️ Demo
 
-<!--
-Add a screenshot of the app and/or a generated PDF output here, e.g.:
-![Screenshot](./screenshot.png)
--->
+<img width="1916" height="1075" alt="Screenshot 2025-07-22 120535" src="https://github.com/user-attachments/assets/43c73eee-9bba-46a6-93b4-84266dafb00e" />
+
 
 ---
 
