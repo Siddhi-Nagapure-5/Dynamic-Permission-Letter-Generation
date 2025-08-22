@@ -1,6 +1,8 @@
 # Dynamic Permission Letter Generator
 # Fixed: Gemini prompt, logo alignment, and template rendering issues
 # Fixed the logos and signature alignment
+# Fixed the font size also 
+# tested some letters  
 
 import streamlit as st
 from datetime import datetime
@@ -112,134 +114,150 @@ Return ONLY the paragraph content, no other text.
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Permission Letter</title>
-    <style>
-        body {
-            font-family: "Times New Roman", serif;
-            line-height: 1.6;
-            margin: 40px 60px;
-            color: #000;
-        }
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .header-table td {
-            text-align: center;
-            vertical-align: top;
-            padding: 0 10px;
-        }
-        .header-table td:first-child {
-            text-align: left;
-        }
-        .header-table td:last-child {
-            text-align: right;
-        }
-        .header-table img {
-            height: 80px;
-        }
-        .header-text {
-            font-size: 0.8em;
-            line-height: 1.2;
-        }
-        .address-date {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-        .right-align {
-            text-align: right;
-        }
-        .subject {
-            font-weight: bold;
-            text-decoration: underline;
-            margin: 20px 0;
-        }
-        .body-text {
-            text-align: justify;
-        }
-        .signatures {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 40px;
-        }
-        .signature-section {
-            text-align: left;
-            margin-top: 50px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .signature-block {
-            line-height: 1.2;
-        }
-        .contact-info {
-            margin-top: 60px;
-            border-top: 1px solid #000;
-            padding-top: 10px;
-            font-size: 0.9em;
-            text-align: center;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Permission Letter</title>
+<style>
+    body {
+        font-family: "Times New Roman", serif;
+        font-size: 12.6pt;
+        line-height: 1.4;
+        margin: 50px 70px;
+        padding: 0;
+        color: #000;
+    }
+
+    /* Header logos */
+    .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 5px;
+    }
+    .header-table td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 0 20px;
+    }
+    .header-table img {
+        height: 90px;
+    }
+
+    /* Horizontal line style */
+    .section-line {
+        border: none;
+        border-top: 2px solid #000;
+        margin: 10px 0 20px 0;
+    }
+
+    /* Address + Date */
+    .address-date {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+    .right-align {
+        text-align: right;
+    }
+
+    /* Subject line */
+    .subject {
+        font-weight: bold;
+        text-decoration: underline;
+        text-align: center;
+        margin: 15px 0;
+    }
+
+    /* Body text */
+    .body-text {
+        text-align: justify;
+    }
+
+    /* Signature section */
+    .signatures {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 40px;
+    }
+    .signatures td {
+        vertical-align: top;
+        font-size: 14pt;
+    }
+
+    /* Footer contact info */
+    .contact-info {
+        margin-top: 20px;
+        font-size: 0.85em;
+        text-align: center;
+    }
+</style>
 </head>
 <body>
-    <table class="header-table">
-        <tr>
-            <td>
-                <img src="data:image/png;base64,{{ pasc_logo }}" alt="PASC Logo">
-            </td>
-            <td>
-                <img src="data:image/png;base64,{{ pict_logo }}" alt="PICT Logo">
-            </td>
-            <td>
-                <img src="data:image/png;base64,{{ acm_logo }}" alt="ACM Logo">
-            </td>
-        </tr>
-    </table>
 
-    <div class="address-date">
-      <div>
+<!-- Logos -->
+<table class="header-table">
+    <tr>
+        <td><img src="images.png" alt="PASC Logo"></td>
+        <td><img src="download.png" alt="ACM Logo"></td>
+        <td><img src="download (1).png" alt="PICT Logo"></td>
+        
+    </tr>
+</table>
+
+<!-- Line after logos -->
+<hr class="section-line">
+
+<!-- Address + Date -->
+<div class="address-date">
+    <div>
         <p>To,</p>
-        <p>{{ authority }},</p>
-        <p>{{ organisation }}.</p>
-      </div>
-      <div class="right-align">
-        <p>Date: {{ current_date }}</p>
-      </div>
+        <p>{{authority}},</p>
+        <p>{{organisation}}</p>
     </div>
+    <div class="right-align">
+        <p>Date: {{current_date}}</p>
+    </div>
+</div>
 
-    <p><strong>Subject: Request for Permission to Use {{ venue }} for PASC Session - “{{ event_name }}”</strong></p>
+<!-- Subject -->
+<p class="subject"><strong>
+    Subject: Request for Permission to Use {{venue}} for PASC Session - "{{event_name}}"
+</strong></p>
 
+<!-- Body -->
     <p>Respected Sir,</p>
     <p class="body-text">{{ content }}</p>
-    <p>We kindly request your permission to conduct the session in the {{ venue }}. We assure you that all resources provided will be used responsibly and the venue will be maintained properly.</p>
+    <p>We kindly request your permission to conduct the session in the {{venue}}. We assure you that all resources provided will be used responsibly and the venue will be maintained properly.</p>
 
     <p>Thanking you in anticipation,<br>Yours Sincerely,</p>
 
-    <table style="width: 100%; border-collapse: collapse;">
-        <tr>
-            <td style="width: 50%; text-align: left; vertical-align: top;">
+<!-- Signatures -->
+<table class="signatures">
+    <tr>
+        <td style="text-align: left;">
                 <p>{{ your_name }}</p>
                 <p>{{ your_role }}</p>
-            </td>
-            <td style="width: 50%; text-align: right; vertical-align: top;">
+        </td>
+        <td style="text-align: right;">
                 <p>{{ counselor_name }}</p>
                 <p>{{ counselor_role }}</p>
-            </td>
-        </tr>
-    </table>
-    
-    <div class="contact-info">
-        <p>
-            PICT ACM Student Chapter<br>
-            Pune Institute of Computer Technology,<br>
-            Dhankawadi, Pune, Maharashtra-411043<br>
-            Website: pict.acm.org | Email: {{ email }}
-        </p>
-    </div>
+        </td>
+    </tr>
+</table>
+
+<!-- Line after signatures -->
+<hr class="section-line">
+
+<!-- Footer -->
+<div class="contact-info">
+    <p>
+        PICT ACM Student Chapter<br>
+        Pune Institute of Computer Technology,<br>
+        Dhankawadi, Pune, Maharashtra-411043<br>
+        Website: pict.acm.org | Email: {{email}}
+    </p>
+</div>
+
 </body>
 </html>
 '''
@@ -261,6 +279,7 @@ Return ONLY the paragraph content, no other text.
             authority=authority,
             organisation=organisation,
             event_name=event_name,
+            venue=venue,
             content=letter_content,
             your_name=your_name,
             your_role=your_role,
