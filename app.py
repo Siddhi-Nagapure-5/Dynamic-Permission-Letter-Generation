@@ -1,5 +1,6 @@
 # Dynamic Permission Letter Generator
-# Fixed: Gemini prompt, logo alignment, and template rendering issues 
+# Fixed: Gemini prompt, logo alignment, and template rendering issues
+# Fixed the logos and signature alignment
 
 import streamlit as st
 from datetime import datetime
@@ -9,16 +10,27 @@ from jinja2 import Template
 from dotenv import load_dotenv
 import os
 import google.generativeai as genai
+import base64
 
 # Load API key
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 gemini_model = genai.GenerativeModel('gemini-2.0-flash')
 
-# Logo placeholders
-left_logo = "images.png"
-middle_logo = "download.png"
-right_logo = "download (1).png"
+# Function to encode image to Base64
+def get_image_as_base64(path):
+    with open(path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+# Logo placeholders - Update paths to your actual logo files
+# Assuming the images are in the same directory as the script.
+try:
+    pict_logo_base64 = get_image_as_base64("download.png")
+    acm_logo_base64 = get_image_as_base64("download (1).png")
+    pasc_logo_base64 = get_image_as_base64("images.png")
+except FileNotFoundError:
+    st.error("Logo files not found. Please ensure 'download.png', 'download (1).png', and 'images.png' are in the same directory.")
+    st.stop()
 
 def convert_html_to_pdf(source_html):
     result = BytesIO()
@@ -96,7 +108,6 @@ Return ONLY the paragraph content, no other text.
 """
 
     # HTML Template (PDF clone style)
-
     html_template = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -111,18 +122,37 @@ Return ONLY the paragraph content, no other text.
             margin: 40px 60px;
             color: #000;
         }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
-        .header img {
+        .header-table td {
+            text-align: center;
+            vertical-align: top;
+            padding: 0 10px;
+        }
+        .header-table td:first-child {
+            text-align: left;
+        }
+        .header-table td:last-child {
+            text-align: right;
+        }
+        .header-table img {
             height: 80px;
         }
-        .date {
+        .header-text {
+            font-size: 0.8em;
+            line-height: 1.2;
+        }
+        .address-date {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .right-align {
             text-align: right;
-            margin: 20px 0;
         }
         .subject {
             font-weight: bold;
@@ -132,94 +162,82 @@ Return ONLY the paragraph content, no other text.
         .body-text {
             text-align: justify;
         }
-        .closing {
-            margin-top: 30px;
-        }
-        .signature-container {
+        .signatures {
             display: flex;
             justify-content: space-between;
-            margin-top: 50px;
+            margin-top: 40px;
         }
-        .signature-left, .signature-right {
+        .signature-section {
             text-align: left;
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
         }
-        .signature-left p, .signature-right p {
-            margin: 0;
+        .signature-block {
+            line-height: 1.2;
         }
-        .footer {
+        .contact-info {
             margin-top: 60px;
             border-top: 1px solid #000;
             padding-top: 10px;
             font-size: 0.9em;
             text-align: center;
         }
-        /* Custom styles for the borders */
-        .border-line {
-            border-top: 1px solid #000;
-            margin: 20px 0;
-        }
     </style>
 </head>
 <body>
-        <div class="header">
-        <img src="{{ left_logo | default('/images.png') }}" alt="PICT Logo">
-        <img src="{{ middle_logo | default('/download (1).png') }}" alt="PASC Logo">
-        <img src="{{ right_logo | default('/download.png') }}" alt="ACM Logo">
+    <table class="header-table">
+        <tr>
+            <td>
+                <img src="data:image/png;base64,{{ pasc_logo }}" alt="PASC Logo">
+            </td>
+            <td>
+                <img src="data:image/png;base64,{{ pict_logo }}" alt="PICT Logo">
+            </td>
+            <td>
+                <img src="data:image/png;base64,{{ acm_logo }}" alt="ACM Logo">
+            </td>
+        </tr>
+    </table>
+
+    <div class="address-date">
+      <div>
+        <p>To,</p>
+        <p>{{ authority }},</p>
+        <p>{{ organisation }}.</p>
+      </div>
+      <div class="right-align">
+        <p>Date: {{ current_date }}</p>
+      </div>
     </div>
 
-        <div class="date">
-        Date: {{ current_date | default("17th August 2025") }}
-    </div>
+    <p><strong>Subject: Request for Permission to Use {{ venue }} for PASC Session - “{{ event_name }}”</strong></p>
 
-        <p>
-        To,<br>
-        {{ authority | default("The Principal") }},<br>
-        {{ organisation | default("PICT, Pune") }}.
-    </p>
+    <p>Respected Sir,</p>
+    <p class="body-text">{{ content }}</p>
+    <p>We kindly request your permission to conduct the session in the {{ venue }}. We assure you that all resources provided will be used responsibly and the venue will be maintained properly.</p>
 
-        <p class="subject">
-        Subject: Request for Permission to Use {{venue}} for PASC Session - 
-        “{{ event_name | default("Tech Talk on AI Innovations") }}”
-    </p>
+    <p>Thanking you in anticipation,<br>Yours Sincerely,</p>
 
-        <div class="body-text">
-        <p>Respected Sir,</p>
-        <p>
-            {{ content | default("We, the members of the PICT ACM Student Chapter (PASC), 
-            would like to request your kind permission to use the auditorium 
-            for conducting our upcoming session.") }}
-        </p>
-        <p>
-            {{ request | default("The event is scheduled on 20th August 2025 from 10:00 AM to 1:00 PM. 
-            We kindly seek your approval to proceed with the arrangements.") }}
-        </p>
-        <p>
-            Thanking you in anticipation,<br>
-            Yours sincerely,
-        </p>
-    </div>
-
-        <table style="width: 100%; border-collapse: collapse; margin-top: 50px;">
-    <tr>
-        <td style="width: 50%; text-align: left; vertical-align: top;">
-            <p>{{ your_name | default("Sarang Rao") }}</p>
-            <p>{{ your_role | default("Chairperson, PASC") }}</p>
-        </td>
-        <td style="width: 50%; text-align: right; vertical-align: top;">
-            <p>{{ counselor_name | default("Prof. ABC XYZ") }}</p>
-            <p>{{ counselor_role | default("Faculty Counselor, PASC") }}</p>
-        </td>
-    </tr>
-</table>
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="width: 50%; text-align: left; vertical-align: top;">
+                <p>{{ your_name }}</p>
+                <p>{{ your_role }}</p>
+            </td>
+            <td style="width: 50%; text-align: right; vertical-align: top;">
+                <p>{{ counselor_name }}</p>
+                <p>{{ counselor_role }}</p>
+            </td>
+        </tr>
+    </table>
     
-        <div class="border-line"></div>
-
-        <div class="footer">
+    <div class="contact-info">
         <p>
             PICT ACM Student Chapter<br>
             Pune Institute of Computer Technology,<br>
             Dhankawadi, Pune, Maharashtra-411043<br>
-            Website: pict.acm.org | Email: {{ email | default("pasc@pict.edu") }}
+            Website: pict.acm.org | Email: {{ email }}
         </p>
     </div>
 </body>
@@ -234,19 +252,16 @@ Return ONLY the paragraph content, no other text.
     else:
         # Render Jinja2 template
         template = Template(html_template)
-        # Generate dynamic request paragraph based on venue
-        request_text = f"We kindly request your permission to use the {venue} for this event. We assure you that we will maintain the decorum and cleanliness of the {venue.lower()} and follow all guidelines."
         
         rendered_html = template.render(
-            left_logo=left_logo,
-            middle_logo=middle_logo,
-            right_logo=right_logo,
+            pict_logo=pict_logo_base64,
+            acm_logo=acm_logo_base64,
+            pasc_logo=pasc_logo_base64,
             current_date=formatted_date,
             authority=authority,
             organisation=organisation,
             event_name=event_name,
             content=letter_content,
-            request=request_text,
             your_name=your_name,
             your_role=your_role,
             counselor_name=counselor_name,
